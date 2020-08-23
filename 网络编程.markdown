@@ -1,0 +1,261 @@
+[TOC]
+
+# 网络编程
+
+## 1.1 Ip和端口号
+
+```bash
+netstat -ano # 查看所有的端口号
+netstat -ano | findstr "5900" # 查看指定的端口
+tasklist | findstr "3692" # 查看指定端口的进程,如3692是chrome占用
+taskkill /pid 18948 /f # 关闭18948该端口的使用
+```
+
+```java
+    public static void main(String[] args) throws UnknownHostException {
+        InetAddress localhost = InetAddress.getByName("localhost");
+        InetAddress localHost = InetAddress.getLocalHost();
+        InetAddress byName = InetAddress.getByName("www.baidu.com");
+        System.out.println(byName.getCanonicalHostName());
+        System.out.println(byName.getHostName());
+        System.out.println(byName.getAddress());
+        System.out.println(byName.getHostAddress());
+        System.out.println(byName);
+        System.out.println(localHost);
+        System.out.println(localhost);
+    }
+
+
+    @Test
+    public void InetSocket(){
+        InetSocketAddress localhost = new InetSocketAddress("localhost", 8080);
+        System.out.println(localhost);
+        System.out.println(localhost.getAddress());
+        System.out.println(localhost.getHostName());
+        System.out.println(localhost.getPort());
+    }
+
+```
+
+
+
+## 1.2 通信协议
+
+协议:	约定,就好比约定说普通话
+
+![1598177585(1)](E:\documents\markdown\image\1598177585(1).jpg)
+
+**TCP/IP协议簇**
+
+重要:
+
+- TCP:连接稳定,三次握手,四次挥手
+
+  ```
+  三次握手:
+  A:你瞅啥?
+  B:瞅你咋地
+  A:干一场!
+  
+  四次挥手:
+  A:我要走了
+  B:你真的要走了吗?
+  B:你真的真的要走了吗?
+  A:我真的要走了
+  
+  ```
+
+  ![1598178161(1)](E:\documents\markdown\image\1598178161(1).jpg)
+
+
+
+
+
+```java
+package net.tcp;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+
+/**
+ * @author dreamFly
+ * @date 18:26 2020/8/23
+ * @className TcpClient
+ * @description 客户端
+ */
+
+public class TcpClient {
+    private static final String IP ="localHost";
+    private static final int PORT =9999;
+
+
+    public static void main(String[] args) {
+        // 1.服务器地址
+        InetAddress localhost = null;
+        Socket socket = null;
+        OutputStream stream = null;
+
+        try {
+            localhost = InetAddress.getByName(IP);
+            // 2.创建socket连接
+            socket = new Socket(localhost, PORT);
+            // 3. 发送消息
+            stream = socket.getOutputStream();
+            // 4. 写入信息
+            stream.write("你好".getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            // 5. 关闭连接
+            closeOutputStreamResource(stream);
+            closeSocketResource(socket);
+        }
+    }
+    private static void closeOutputStreamResource(OutputStream stream){
+
+        if (null != stream){
+            try {
+                stream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private static void closeSocketResource(Socket socket){
+        if (null !=socket){
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+}
+----------------------------------------------------------------------------------------------------------
+
+package net.tcp;
+
+import com.sun.corba.se.impl.interceptors.PICurrent;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+/**
+ * @author dreamFly
+ * @date 18:27 2020/8/23
+ * @className TcpServer
+ * @description 服务端(先启动server端)
+ */
+
+public class TcpServer {
+
+    private static final int PORT = 9999;
+
+    public static void main(String[] args) {
+
+        ServerSocket serverSocket = null;
+        Socket socket = null;
+        InputStream osMsg = null;
+        // 管道流
+        ByteArrayOutputStream pipeline = null;
+        try {
+            // 1.首先需要个地址
+            serverSocket = new ServerSocket(PORT);
+
+            while (true){
+                // 2. 等待客户端连接
+                socket = serverSocket.accept();
+                // 3.读取客户端消息
+                osMsg = socket.getInputStream();
+                pipeline = new ByteArrayOutputStream();
+                // 4.创建一个缓冲区,把消息写入缓冲区
+                byte[] bytes = new byte[1024];
+                int len;
+                while ((len=osMsg.read(bytes)) !=-1){
+                    pipeline.write(bytes,0,len);
+                }
+                System.out.println(pipeline.toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // 5. 释放资源
+            closeByteArrayOutputStream(pipeline);
+            closeInputStream(osMsg);
+            closeSocketResource(socket);
+            closeServerSocket(serverSocket);
+        }
+    }
+
+    private static void closeInputStream(InputStream stream){
+        if (null !=stream){
+            try {
+                stream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    private static void closeServerSocket(ServerSocket serverSocket){
+
+        if (null != serverSocket){
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+
+    private static void closeByteArrayOutputStream(ByteArrayOutputStream byteArrayOutputStream){
+        if (null!=byteArrayOutputStream){
+            try {
+                byteArrayOutputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+
+    private static void closeSocketResource(Socket socket){
+        if (null !=socket){
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+
+
+
+
+```
+
+
+
+- UDP:不太稳定(发短信)
+
+```
+
+
+
+
+```
+
+
+
