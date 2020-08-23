@@ -43,7 +43,7 @@ taskkill /pid 18948 /f # 关闭18948该端口的使用
 
 协议:	约定,就好比约定说普通话
 
-![1598177585(1)](E:\documents\markdown\image\1598177585(1).jpg)
+![1598177585(1)](https://github.com/ylkhLMF/markdown/blob/master/image/1598177585(1).jpg)
 
 **TCP/IP协议簇**
 
@@ -65,7 +65,7 @@ taskkill /pid 18948 /f # 关闭18948该端口的使用
   
   ```
 
-  ![1598178161(1)](E:\documents\markdown\image\1598178161(1).jpg)
+  ![1598178161(1)](https://github.com/ylkhLMF/markdown/blob/master/image/1598178161(1).jpg)
 
 
 
